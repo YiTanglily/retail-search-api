@@ -40,9 +40,19 @@ app.post("/products", async (req, res) => {
   // pgvector doesn't accept arrays,so I convert "embed" to string style
   const result = await pool.query(
     "INSERT INTO products (title, description, price, quantity,embedding) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-    [title, description, price, quantity, embed],
+    [title, description, price, quantity, vectorString],
   );
   res.send(result.rows[0]);
+});
+app.get("/search", async (req, res) => {
+  const questions = req.query.q;
+  const searchProduct = await embedding(questions);
+  const searchVector = JSON.stringify(searchProduct);
+  const result = await pool.query(
+    "SELECT id, title, description FROM products ORDER BY embedding <=> $1 LIMIT 5",
+    [searchVector],
+  );
+  res.send(result.rows);
 });
 
 app.listen(3000, () => {

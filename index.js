@@ -55,6 +55,25 @@ app.get("/search", async (req, res) => {
   res.send(result.rows);
 });
 
+app.delete("/products/:id", async (req, res) => {
+  const { id } = req.params;
+  const deleteProduct = await pool.query(
+    "DELETE FROM products WHERE id=$1  RETURNING *",
+    [id],
+  );
+  res.send(deleteProduct.rows);
+});
+
+app.put("/products/:id", async (req, res) => {
+  const { id } = req.params;
+  const { title, description, price, quantity } = req.body;
+  const updateInfo = await pool.query(
+    "UPDATE products SET title=$1,description = $2, price = $3, quantity = $4  WHERE id=$5 RETURNING*",
+    [title, description, price, quantity, id],
+  );
+  res.send(updateInfo.rows);
+});
+
 app.listen(3000, () => {
   console.log("server is running at http://localhost:3000");
 });

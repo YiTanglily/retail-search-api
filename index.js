@@ -24,9 +24,20 @@ app.get("/", (req, res) => {
 });
 
 app.get("/products", async (req, res) => {
-  const result = await pool.query("select*from products");
+  // pagination to manage the number of results returned.
+  const limitation = Number(req.query.limit) || 20;
+  const offset = Number(req.query.offset) || 0;
+  console.log("limit:", limitation, "offset:", offset);
+  // sorting
+  const allowSorts = ["id", "title", "quantity", "price"];
+  const sort = allowSorts.includes(req.query.sort) ? req.query.sort : "id";
+  const result = await pool.query(
+    `SELECT id, title, description, price, quantity FROM products ORDER BY ${sort} LIMIT $1 OFFSET $2`,
+    [limitation, offset],
+  );
   res.send(result.rows);
 });
+
 app.get("/products/:id", async (req, res) => {
   const { id } = req.params;
   const result = await pool.query("SELECT * FROM products WHERE id = $1", [id]);

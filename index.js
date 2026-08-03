@@ -40,12 +40,25 @@ app.get("/products", async (req, res) => {
 
 app.get("/products/:id", async (req, res) => {
   const { id } = req.params;
-  const result = await pool.query("SELECT * FROM products WHERE id = $1", [id]);
-  res.send(result.rows[0]);
+  const result = await pool.query(
+    "SELECT id, title, description, price, quantity FROM products WHERE id = $1",
+    [id],
+  );
+  if (!result.rows[0]) {
+    res.status(404).send({ error: "could't find the product" });
+  } else {
+    res.send(result.rows[0]);
+  }
 });
 
 app.post("/products", async (req, res) => {
   const { title, description, price, quantity } = req.body;
+  if (!title || !description || !price || !quantity) {
+    return res.status(400).send({
+      error:
+        "Please fill in all important information,such as title, price, etc.",
+    });
+  }
   const embed = await embedding(description);
   const vectorString = JSON.stringify(embed);
   // pgvector doesn't accept arrays,so I convert "embed" to string style

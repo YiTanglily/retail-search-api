@@ -59,27 +59,36 @@ app.get("/products/:id", async (req, res, next) => {
   }
 });
 
-app.post("/products", async (req, res, next) => {
+app.post("/products/bulk", async (req, res, next) => {
   try {
-    const { title, description, price, quantity } = req.body;
-    if (!title || !description || !price || !quantity) {
-      return res.status(400).send({
-        error:
-          "Please fill in all important information,such as title, price, etc.",
-      });
+    const products = req.body;
+    // check the error first(validation check);avoid half-inserts.
+    for (const p of products) {
+      if (!p.title || !p.description || !p.price || !p.quantity) {
+        return res.status(400).send({
+          error:
+            "Please fill in all important information,such as title, price, etc.",
+        });
+      }
     }
-    const embed = await embedding(description);
-    const vectorString = JSON.stringify(embed);
-    // pgvector doesn't accept arrays,so I convert "embed" to string style
-    const result = await pool.query(
-      "INSERT INTO products (title, description, price, quantity,embedding) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [title, description, price, quantity, vectorString],
-    );
-    res.send(result.rows[0]);
+
+    const inserted = [];
+    for (const p of products) {
+      const embed = await embedding(p.description);
+      const vectorString = JSON.stringify(embed);
+      // pgvector doesn't accept arrays,so I convert "embed" to string style
+      const result = await pool.query(
+        "INSERT INTO products (title, description, price, quantity,embedding) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+        [p.title, p.description, p.price, p.quantity, vectorString],
+      );
+      inserted.push(result.rows[0]);
+    }
+    res.send(inserted);
   } catch (err) {
     next(err);
   }
 });
+
 app.get("/search", async (req, res, next) => {
   try {
     const questions = req.query.q;

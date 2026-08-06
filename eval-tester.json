@@ -1,0 +1,32 @@
+[
+  {
+    "query": "a container for water",
+    "expected_answer": "Water Bottle"
+  },
+  {
+    "query": "good shoes for parents ",
+    "expected_answer": "shoes"
+  },
+
+  { "query": "a gift for coffee lover", "expected_answer": "Coffee Mug" },
+
+  {
+    "query": "a decoration for desk",
+    "expected_answer": "Desk Lamp"
+  },
+  {
+    "query": "protect hands",
+    "expected_answer": "Winter Gloves"
+  },
+  {
+    "query": "a surface for floor exercises",
+    "expected_answer": "yoga mat"
+  },
+  { "query": "blue tooth earphone", "expected_answer": "Wireless Headphones" },
+  { "query": "Containers for packaging items", "expected_answer": "bag" },
+  { "query": "resort style glasses", "expected_answer": "Sunglasses" },
+  {
+    "query": "a gift for someone special",
+    "expected_answer": "Silver Necklace"
+  }
+]

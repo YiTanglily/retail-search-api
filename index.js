@@ -2,6 +2,7 @@ import express from "express";
 import pg from "pg";
 import "dotenv/config";
 import OpenAI from "openai";
+import cors from "cors";
 
 const openai = new OpenAI();
 async function embedding(text) {
@@ -13,6 +14,7 @@ async function embedding(text) {
 }
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 const pool = new pg.Pool({
